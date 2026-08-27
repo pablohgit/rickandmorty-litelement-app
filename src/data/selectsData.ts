@@ -1,6 +1,6 @@
-import type { optionType } from "../interface/optionType";
+import type { Option } from "../interface/optionType";
 
-const statusArr: optionType[] = [
+const statusArr: Option[] = [
   {
     label: "Alive",
     value: "alive",
@@ -15,7 +15,7 @@ const statusArr: optionType[] = [
   },
 ];
 
-const speciesArr: optionType[] = [
+const speciesArr: Option[] = [
   {
     label: "Human",
     value: "human",
@@ -58,7 +58,7 @@ const speciesArr: optionType[] = [
   },
 ];
 
-const typesArr: optionType[] = [
+const typesArr: Option[] = [
   {
     label: "Parasite",
     value: "parasite",
@@ -81,7 +81,7 @@ const typesArr: optionType[] = [
   },
 ];
 
-const genderArr: optionType[] = [
+const genderArr: Option[] = [
   {
     label: "Female",
     value: "female",
