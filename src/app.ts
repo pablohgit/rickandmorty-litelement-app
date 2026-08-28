@@ -1,8 +1,14 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import notFound from "./assets/notFound.svg";
 import title from "./assets/title.svg";
-import { genderArr, speciesArr, statusArr, typesArr } from "./data/selectsData";
 import type { Character } from "./interface/characterType";
+import {
+  genderArr,
+  speciesArr,
+  statusArr,
+  typesArr,
+} from "./mocks/selectsMocks";
 import { getRickandmortyCharacters } from "./service/rickandmortyapi";
 import { styleModule } from "./styles/style";
 
@@ -20,6 +26,8 @@ export class AppRoot extends LitElement {
   characterGender = "";
   @property({ type: Array })
   charactersArr: Character[] = [];
+  @property({ type: Boolean })
+  characterNotFounded = false;
 
   static get styles() {
     return styleModule;
@@ -44,7 +52,6 @@ export class AppRoot extends LitElement {
         break;
       case "species":
         this.characterSpecie = selectValue;
-
         break;
       case "type":
         this.characterType = selectValue;
@@ -66,9 +73,12 @@ export class AppRoot extends LitElement {
       this.characterGender,
     );
 
-    data ? (this.charactersArr = data) : (this.charactersArr = []);
-
-    console.log(this.charactersArr);
+    if (data) {
+      this.charactersArr = data;
+    } else {
+      this.charactersArr = [];
+      this.characterNotFounded = true;
+    }
   };
 
   render() {
@@ -87,61 +97,68 @@ export class AppRoot extends LitElement {
           />
           <button @click=${this.handleSearchClick}>Search</button>
         </div>
-      </div>
 
-      <div class="filters">
-        <select @change=${(e: Event) => this.handleSelectChange(e, "status")}>
-          <option>Select status</option>
-          ${statusArr.map((status) => {
-            return html`<option value="${status.value}">
-              ${status.label}
-            </option>`;
-          })}
-        </select>
+        <div class="filters">
+          <select @change=${(e: Event) => this.handleSelectChange(e, "status")}>
+            <option>Select status</option>
+            ${statusArr.map((status) => {
+              return html`<option value="${status.value}">
+                ${status.label}
+              </option>`;
+            })}
+          </select>
 
-        <select @change=${(e: Event) => this.handleSelectChange(e, "species")}>
-          <option>Select species</option>
-          ${speciesArr.map((status) => {
-            return html`<option value="${status.value}">
-              ${status.label}
-            </option>`;
-          })}
-        </select>
+          <select
+            @change=${(e: Event) => this.handleSelectChange(e, "species")}
+          >
+            <option>Select species</option>
+            ${speciesArr.map((status) => {
+              return html`<option value="${status.value}">
+                ${status.label}
+              </option>`;
+            })}
+          </select>
 
-        <select @change=${(e: Event) => this.handleSelectChange(e, "type")}>
-          <option>Select type</option>
-          ${typesArr.map((status) => {
-            return html`<option value="${status.value}">
-              ${status.label}
-            </option>`;
-          })}
-        </select>
+          <select @change=${(e: Event) => this.handleSelectChange(e, "type")}>
+            <option>Select type</option>
+            ${typesArr.map((status) => {
+              return html`<option value="${status.value}">
+                ${status.label}
+              </option>`;
+            })}
+          </select>
 
-        <select @change=${(e: Event) => this.handleSelectChange(e, "gender")}>
-          <option>Select gender</option>
-          ${genderArr.map((status) => {
-            return html`<option value="${status.value}">
-              ${status.label}
-            </option>`;
-          })}
-        </select>
-      </div>
+          <select @change=${(e: Event) => this.handleSelectChange(e, "gender")}>
+            <option>Select gender</option>
+            ${genderArr.map((status) => {
+              return html`<option value="${status.value}">
+                ${status.label}
+              </option>`;
+            })}
+          </select>
+        </div>
 
-      <div class="card-grid">
-        ${this.charactersArr.map(
-          (char) => html`
-            <div class="card">
-              <img src=${char.image} alt=${char.name} />
-              <div class="info">
-                <strong>${char.name}</strong>
-                <p>Species: ${char.species}</p>
-                <p>Type: ${char.type || "-"}</p>
-                <p>Gender: ${char.gender}</p>
-                <p>Status: ${char.status}</p>
-              </div>
-            </div>
-          `,
-        )}
+        ${this.characterNotFounded
+          ? html`<div class="no-results">
+              <img src="${notFound}" />
+              <p>Character not found</p>
+            </div>`
+          : html`<div class="card-grid">
+              ${this.charactersArr.map(
+                (char) => html`
+                  <div class="card">
+                    <img src=${char.image} alt=${char.name} />
+                    <div class="info">
+                      <strong>${char.name}</strong>
+                      <p>Species: ${char.species}</p>
+                      <p>Type: ${char.type || "-"}</p>
+                      <p>Gender: ${char.gender}</p>
+                      <p>Status: ${char.status}</p>
+                    </div>
+                  </div>
+                `,
+              )}
+            </div>`}
       </div>
     `;
   }
