@@ -10,7 +10,10 @@ import {
   typesArr,
 } from "./mocks/selectsMocks";
 import { getRickandmortyCharacters } from "./service/rickandmortyapi";
-import { styleModule } from "./styles/style";
+import { styleModule } from "./styles/global-style.js";
+
+import "./components/search-characters-input.js";
+import type { SearchCharactersInput } from "./components/search-characters-input.js";
 
 @customElement("app-root")
 export class AppRoot extends LitElement {
@@ -29,18 +32,14 @@ export class AppRoot extends LitElement {
   @property({ type: Boolean })
   characterNotFounded = false;
 
-  static get styles() {
-    return styleModule;
-  }
-
   private readonly handleSearchClick = async (): Promise<void> => {
-    const searchValue = this.shadowRoot?.getElementById(
-      "input-search",
-    ) as HTMLInputElement;
+    const searchInputComp = this.shadowRoot?.querySelector(
+      "search-characters-input",
+    ) as SearchCharactersInput;
 
     await this.searchCharacters();
 
-    searchValue.value = "";
+    searchInputComp.clearInput();
   };
 
   private readonly handleSelectChange = (e: Event, select: string): void => {
@@ -87,14 +86,11 @@ export class AppRoot extends LitElement {
         <img src="${title}" class="logo" />
 
         <div class="search-container">
-          <input
-            id="input-search"
-            type="text"
-            placeholder="Search character"
-            .value=${this.characterName}
-            @input=${(e: Event) =>
-              (this.characterName = (e.target as HTMLInputElement).value)}
-          />
+          <search-characters-input
+            @input-character-changed=${(ce: CustomEvent) => {
+              this.characterName = ce.detail.characterName;
+            }}
+          ></search-characters-input>
           <button @click=${this.handleSearchClick}>Search</button>
         </div>
 
@@ -161,5 +157,9 @@ export class AppRoot extends LitElement {
             </div>`}
       </div>
     `;
+  }
+
+  static get styles() {
+    return styleModule;
   }
 }

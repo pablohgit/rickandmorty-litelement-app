@@ -14,14 +14,8 @@ export const styleModule = css`
   .search-container {
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: 2rem;
     margin-bottom: 1rem;
-  }
-
-  input {
-    padding: 0.5rem;
-    border: 1px solid #00cfe8;
-    width: 40%;
   }
 
   button {
