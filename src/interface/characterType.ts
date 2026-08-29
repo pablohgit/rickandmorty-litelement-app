@@ -17,3 +17,15 @@ interface Origin {
   name: string;
   url: string;
 }
+
+export interface CharacterApiInfo {
+  count: number;
+  pages: number;
+  next: string | null;
+  prev: string | null;
+}
+
+export interface CharacterApiResponse {
+  info: CharacterApiInfo;
+  results: Character[];
+}

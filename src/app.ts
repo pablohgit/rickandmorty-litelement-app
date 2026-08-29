@@ -6,6 +6,7 @@ import type { Character } from "./interface/characterType";
 import { getRickandmortyCharacters } from "./service/rickandmortyapi";
 import { styleModule } from "./styles/global-style.js";
 
+import "./components/characters-list";
 import "./components/search-characters-filters";
 import "./components/search-characters-input";
 
@@ -27,6 +28,10 @@ export class AppRoot extends LitElement {
   characterType = "";
   @property({ type: String })
   characterGender = "";
+  @property({ type: Number })
+  currentPage = 1;
+  @property({ type: Number })
+  totalPages = 1;
   @property({ type: Array })
   charactersArr: Character[] = [];
   @property({ type: Boolean })
@@ -37,9 +42,28 @@ export class AppRoot extends LitElement {
       "search-characters-input",
     );
 
+    this.currentPage = 1;
     await this.searchCharacters();
 
     searchInputComp?.clearInput();
+  };
+
+  private readonly handlePreviousPage = async (): Promise<void> => {
+    if (this.currentPage <= 1) {
+      return;
+    }
+
+    this.currentPage -= 1;
+    await this.searchCharacters();
+  };
+
+  private readonly handleNextPage = async (): Promise<void> => {
+    if (this.currentPage >= this.totalPages) {
+      return;
+    }
+
+    this.currentPage += 1;
+    await this.searchCharacters();
   };
 
   private readonly handlerSelectHasChangedEvent = (ce: CustomEvent) => {
@@ -58,14 +82,18 @@ export class AppRoot extends LitElement {
       this.characterSpecie,
       this.characterType,
       this.characterGender,
+      this.currentPage,
     );
 
     if (data) {
-      this.charactersArr = data;
-    } else {
-      this.charactersArr = [];
-      this.characterNotFounded = true;
+      this.charactersArr = data.results;
+      this.totalPages = data.info.pages;
+      this.characterNotFounded = false;
+      return;
     }
+
+    this.charactersArr = [];
+    this.characterNotFounded = true;
   };
 
   render() {
@@ -91,22 +119,33 @@ export class AppRoot extends LitElement {
               <img src="${notFound}" />
               <p>Character not found</p>
             </div>`
-          : html`<div class="card-grid">
-              ${this.charactersArr.map(
-                (char) => html`
-                  <div class="card">
-                    <img src=${char.image} alt=${char.name} />
-                    <div class="info">
-                      <strong>${char.name}</strong>
-                      <p>Species: ${char.species}</p>
-                      <p>Type: ${char.type || "-"}</p>
-                      <p>Gender: ${char.gender}</p>
-                      <p>Status: ${char.status}</p>
+          : html`
+              <characters-list
+                .charactersArr=${this.charactersArr}
+              ></characters-list>
+
+              ${this.totalPages > 1
+                ? html`
+                    <div class="pagination">
+                      <button
+                        ?disabled=${this.currentPage === 1}
+                        @click=${this.handlePreviousPage}
+                      >
+                        Previous
+                      </button>
+                      <span
+                        >Page ${this.currentPage} of ${this.totalPages}</span
+                      >
+                      <button
+                        ?disabled=${this.currentPage === this.totalPages}
+                        @click=${this.handleNextPage}
+                      >
+                        Next
+                      </button>
                     </div>
-                  </div>
-                `,
-              )}
-            </div>`}
+                  `
+                : null}
+            `}
       </div>
     `;
   }

@@ -1,3 +1,5 @@
+import type { CharacterApiResponse } from "../interface/characterType";
+
 const baseApiUrl = "https://rickandmortyapi.com/api";
 
 const getRickandmortyCharacters = async (
@@ -6,14 +8,32 @@ const getRickandmortyCharacters = async (
   characterSpecie: string,
   characterType: string,
   characterGender: string,
-) => {
-  const apiUrlCharacters = `${baseApiUrl}/character/?name=${characterName}&status=${characterStatus}&species=${characterSpecie}&type=${characterType}&gender=${characterGender}`;
+  page = 1,
+): Promise<CharacterApiResponse | undefined> => {
+  const params = new URLSearchParams({
+    page: String(page),
+  });
+
+  const filters = {
+    name: characterName,
+    status: characterStatus,
+    species: characterSpecie,
+    type: characterType,
+    gender: characterGender,
+  };
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      params.append(key, value);
+    }
+  });
+
+  const apiUrlCharacters = `${baseApiUrl}/character/?${params.toString()}`;
 
   return await fetch(apiUrlCharacters)
-    .then((res) => res.json())
-    .then((json) => json.results)
+    .then((res) => res.json() as Promise<CharacterApiResponse>)
     .catch(() => {
-      return;
+      return undefined;
     });
 };
 

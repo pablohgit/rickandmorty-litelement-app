@@ -26,34 +26,24 @@ export const styleModule = css`
     cursor: pointer;
   }
 
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    padding: 1rem;
-  }
-
-  .card {
-    border: 1px solid #00cfe8;
-    background: white;
-    padding: 0.5rem;
-    text-align: left;
-  }
-
-  .card img {
-    width: 100%;
-    height: auto;
-  }
-
-  .info {
-    padding: 0.5rem 0;
-  }
-
   .no-results {
     margin-top: 2rem;
   }
 
   .no-results img {
     width: 150px;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0 2rem;
+  }
+
+  .pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
