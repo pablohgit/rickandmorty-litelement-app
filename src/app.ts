@@ -3,17 +3,17 @@ import { customElement, property } from "lit/decorators.js";
 import notFound from "./assets/notFound.svg";
 import title from "./assets/title.svg";
 import type { Character } from "./interface/characterType";
-import {
-  genderArr,
-  speciesArr,
-  statusArr,
-  typesArr,
-} from "./mocks/selectsMocks";
 import { getRickandmortyCharacters } from "./service/rickandmortyapi";
 import { styleModule } from "./styles/global-style.js";
 
-import "./components/search-characters-input.js";
-import type { SearchCharactersInput } from "./components/search-characters-input.js";
+import "./components/search-characters-filters";
+import "./components/search-characters-input";
+
+type FilterKeys =
+  | "characterStatus"
+  | "characterSpecie"
+  | "characterType"
+  | "characterGender";
 
 @customElement("app-root")
 export class AppRoot extends LitElement {
@@ -35,32 +35,20 @@ export class AppRoot extends LitElement {
   private readonly handleSearchClick = async (): Promise<void> => {
     const searchInputComp = this.shadowRoot?.querySelector(
       "search-characters-input",
-    ) as SearchCharactersInput;
+    );
 
     await this.searchCharacters();
 
-    searchInputComp.clearInput();
+    searchInputComp?.clearInput();
   };
 
-  private readonly handleSelectChange = (e: Event, select: string): void => {
-    const selectValue = (e.target as HTMLSelectElement).value;
+  private readonly handlerSelectHasChangedEvent = (ce: CustomEvent) => {
+    const { select, value } = ce.detail as {
+      select: FilterKeys;
+      value: string;
+    };
 
-    switch (select) {
-      case "status":
-        this.characterStatus = selectValue;
-        break;
-      case "species":
-        this.characterSpecie = selectValue;
-        break;
-      case "type":
-        this.characterType = selectValue;
-        break;
-      case "gender":
-        this.characterGender = selectValue;
-        break;
-      default:
-        break;
-    }
+    this[select] = value;
   };
 
   private readonly searchCharacters = async (): Promise<void> => {
@@ -94,45 +82,9 @@ export class AppRoot extends LitElement {
           <button @click=${this.handleSearchClick}>Search</button>
         </div>
 
-        <div class="filters">
-          <select @change=${(e: Event) => this.handleSelectChange(e, "status")}>
-            <option>Select status</option>
-            ${statusArr.map((status) => {
-              return html`<option value="${status.value}">
-                ${status.label}
-              </option>`;
-            })}
-          </select>
-
-          <select
-            @change=${(e: Event) => this.handleSelectChange(e, "species")}
-          >
-            <option>Select species</option>
-            ${speciesArr.map((status) => {
-              return html`<option value="${status.value}">
-                ${status.label}
-              </option>`;
-            })}
-          </select>
-
-          <select @change=${(e: Event) => this.handleSelectChange(e, "type")}>
-            <option>Select type</option>
-            ${typesArr.map((status) => {
-              return html`<option value="${status.value}">
-                ${status.label}
-              </option>`;
-            })}
-          </select>
-
-          <select @change=${(e: Event) => this.handleSelectChange(e, "gender")}>
-            <option>Select gender</option>
-            ${genderArr.map((status) => {
-              return html`<option value="${status.value}">
-                ${status.label}
-              </option>`;
-            })}
-          </select>
-        </div>
+        <search-characters-filters
+          @selectHasChanged=${this.handlerSelectHasChangedEvent}
+        ></search-characters-filters>
 
         ${this.characterNotFounded
           ? html`<div class="no-results">

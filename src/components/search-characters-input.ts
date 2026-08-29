@@ -37,3 +37,9 @@ export class SearchCharactersInput extends LitElement {
     return styleModule;
   }
 }
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "search-characters-input": SearchCharactersInput;
+  }
+}
